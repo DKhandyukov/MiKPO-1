@@ -1,0 +1,4 @@
+c:\users\pavvin\documents\visual studio 2010\Projects\Vinnik_Handyukov\Vinnik_Handyukov\bin\Debug\Vinnik_Handyukov.exe
+c:\users\pavvin\documents\visual studio 2010\Projects\Vinnik_Handyukov\Vinnik_Handyukov\bin\Debug\Vinnik_Handyukov.pdb
+c:\users\pavvin\documents\visual studio 2010\Projects\Vinnik_Handyukov\Vinnik_Handyukov\obj\x86\Debug\Vinnik_Handyukov.exe
+c:\users\pavvin\documents\visual studio 2010\Projects\Vinnik_Handyukov\Vinnik_Handyukov\obj\x86\Debug\Vinnik_Handyukov.pdb
