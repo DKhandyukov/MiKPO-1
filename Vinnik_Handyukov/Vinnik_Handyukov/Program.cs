@@ -14,9 +14,12 @@ namespace Vinnik_Handyukov
             public double a;
             public double b;
             public double alpha;
+            public double c;
+            public bool norm;
         }
         static int count = 0;
-        
+        static string in_file;
+        static string out_file;
         static bool check(string[] raw)
         {
             bool result = false;
@@ -35,44 +38,116 @@ namespace Vinnik_Handyukov
             return result;
         }
 
+        static double ToRad(double alpha)
+        {
+            return alpha * Math.PI / 180;
+        }
+
+        static double ToGrad(double alpha)
+        {
+            return alpha * 180 / Math.PI;
+        }
+
+        static double calcC(data raw)
+        {
+            double angleRad=ToRad(raw.alpha);
+            double C = Math.Sqrt(Math.Pow(raw.a, 2) + Math.Pow(raw.b, 2) - 2 * raw.a * raw.b * Math.Cos(angleRad));
+            return C;
+        }
+
+        static double calcBeta(data raw)
+        {
+            double angleGrad = 0;
+            double buf = (Math.Pow(raw.c, 2) + Math.Pow(raw.b, 2) - Math.Pow(raw.a, 2)) / (2 * raw.b * raw.c);
+            angleGrad = ToGrad(Math.Acos(buf));
+            return angleGrad;
+        }
+
+        static double calcHamma(data raw)
+        {
+            double angleGrad = 0;
+            double buf = (Math.Pow(raw.c, 2) + Math.Pow(raw.a, 2) - Math.Pow(raw.b, 2)) / (2 * raw.a * raw.c);
+            angleGrad = ToGrad(Math.Acos(buf));
+            return angleGrad;
+        }
+
+        static void toFile(data dat)
+        {
+            StreamWriter sw = new StreamWriter(out_file, true, Encoding.Default);
+            sw.WriteLine("{0} ; {1} ; {2}", dat.a, dat.b, dat.c);
+            sw.Close();
+        }
+
+        static void calcAll(data[] raw)
+        {
+            for (int i = 0; i < raw.Length; i++)
+            {
+                if (raw[i].norm)
+                {
+                    raw[i].c = calcC(raw[i]);
+                    Console.Write(" A - {0} ", raw[i].a);
+                    Console.Write(" B - {0} ", raw[i].b);
+                    Console.Write(" C - {0} ", raw[i].c);
+                    Console.Write(" Alpha - {0} ", raw[i].alpha);
+                    Console.Write(" Beta - {0} ", calcBeta(raw[i]));
+                    Console.WriteLine(" Hamma - {0} ", calcHamma(raw[i]));
+                    toFile(raw[i]);
+                }
+            }
+        }
+
         static void Main(string[] args)
         {
-            string in_file = args[0];
-            string out_file = args[1];
-            if (File.Exists(in_file))
+            if (args.Length >= 2)
             {
-                StreamReader sr = new StreamReader(in_file, Encoding.Default);
-                while (!sr.EndOfStream)
+                in_file = args[0];
+                out_file = args[1];
+                if (File.Exists(in_file))
                 {
-                    data[] data_arr = new data[50];
-                    for (int i = 0; i < 50; i++)
+                    StreamReader sr = new StreamReader(in_file, Encoding.Default);
+                    while (!sr.EndOfStream)
                     {
-                        string[] buf = new string[3];
-                        string line="";
-                        if (File.Exists(in_file) && ((line = sr.ReadLine()) != null))
+                        if (File.Exists(in_file))
                         {
-                            line = line.Replace(".", ",");
-                            buf = line.Split(';');
-                            count++;
-                            data raw_data = new data();
-                            if (check(buf))
+                            data[] data_arr = new data[50];
+                            for (int i = 0; i < 50; i++)
                             {
-                                raw_data.a = Convert.ToDouble(buf[0]);
-                                raw_data.b = Convert.ToDouble(buf[1]);
-                                raw_data.alpha = Convert.ToDouble(buf[2]);
-                                data_arr[i] = raw_data;
+                                string[] buf = new string[3];
+                                string line = "";
+                                if ((line = sr.ReadLine()) != null)
+                                {
+                                    line = line.Replace(".", ",");
+                                    buf = line.Split(';');
+                                    count++;
+                                    data raw_data = new data();
+                                    if (check(buf))
+                                    {
+                                        raw_data.a = Convert.ToDouble(buf[0]);
+                                        raw_data.b = Convert.ToDouble(buf[1]);
+                                        raw_data.alpha = Convert.ToDouble(buf[2]);
+                                        raw_data.c = 0;
+                                        raw_data.norm = true;
+                                        data_arr[i] = raw_data;
+                                    }
+                                    else
+                                    {
+                                        data_arr[i].norm = false;
+                                    }
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Файл кончился. Считано {0} записей", count);
+                                    break;
+                                }
                             }
-                           
-                            
+                            calcAll(data_arr);
                         }
-                        else
-                        {
-                            Console.WriteLine("Файл кончился. Считано {0} записей", count);
-                            break;
-                        }
-
                     }
                 }
+            }
+            else
+            {
+                Console.WriteLine("Нет пути входного или выходного файла");
             }
         }
     }
